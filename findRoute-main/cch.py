@@ -224,7 +224,8 @@ class CustomizableContractionHierarchies:
             to_arc = triangle.to_side_arc
             cost = metric_function(from_arc.cost, to_arc.cost)
             
-            if cost < min_cost and abs(cost - arc.cost) < 1e-6:  # 부동소수점 비교 주의
+            # 비용 비교 시 오차 허용 범위를 넓게 설정 (1e-3)
+            if cost < min_cost and (abs(cost - arc.cost) < 1e-3 or cost < arc.cost):
                 min_cost = cost
                 best_triangle = triangle
         
@@ -232,85 +233,11 @@ class CustomizableContractionHierarchies:
         if not best_triangle:
             result_path.append(arc)
             return
-
-
-"""
-def simple_cch_example():
-
-    # CCH 알고리즘을 설명하기 위한 간단한 예제 함수(돌아가는지 확인하고 싶으면 주석 해제)
-
-    # 예제 그래프 생성
-    graph = Graph()
-    
-    # 정점 추가
-    graph.add_vertex(Vertex(0, 0))
-    graph.add_vertex(Vertex(1, 1))
-    graph.add_vertex(Vertex(2, 2))
-    graph.add_vertex(Vertex(3, 3))
-    graph.add_vertex(Vertex(4, 4))
-    
-    # 간선 추가
-    graph.add_edge(graph.vertices[0], graph.vertices[1], 1)
-    graph.add_edge(graph.vertices[0], graph.vertices[2], 5)
-    graph.add_edge(graph.vertices[1], graph.vertices[2], 2)
-    graph.add_edge(graph.vertices[1], graph.vertices[3], 4)
-    graph.add_edge(graph.vertices[2], graph.vertices[3], 1)
-    graph.add_edge(graph.vertices[2], graph.vertices[4], 3)
-    graph.add_edge(graph.vertices[3], graph.vertices[4], 2)
-    
-    # 간선 비용 출력
-    print("\n업데이트된 간선 비용:")
-    for (source_id, target_id), arc in graph.arcs.items():
-        print(f"{source_id} -> {target_id}: {arc.cost}")
-    
-    # CCH 알고리즘 실행
-    # 1. 메트릭 독립적 전처리 단계
-    print("\n1. 메트릭 독립적 전처리 단계 실행...")
-    cch = CustomizableContractionHierarchies(graph)
-    cch.metric_independent_preprocessing(len(graph.vertices))
-    
-    # 2. 커스터마이징 단계
-    print("2. 커스터마이징 단계 - 실제 간선 비용 적용...")
-    cch.customize()
-    
-    # 0->2 경로 풀기
-    print("\n0->2 경로 풀기 결과:")
-    path = []
-    start_arc = graph.arcs.get((0, 2))
-    if start_arc:
-        cch.unpack_path(start_arc, path)
+            
+        # 최적 경로가 있으면 재귀적으로 경로 풀어내기
+        self.unpack_path(best_triangle.from_side_arc, result_path, metric_function)
+        self.unpack_path(best_triangle.to_side_arc, result_path, metric_function)
         
-        # 결과 출력
-        if path:
-            total_cost = 0
-            for arc in path:
-                print(f"{arc.source.id} -> {arc.target.id} (비용: {arc.cost})")
-                total_cost += arc.cost
-            print(f"\n총 비용: {total_cost}")
-    
-    # 3. 다른 메트릭 적용 예시 (전기자전거 경로)
-    print("\n3. 다른 메트릭 적용 예시 (전기자전거 경로)...")
-    
-    # 전기자전거 메트릭으로 0->2 경로 풀기
-    print("\n전기자전거 메트릭으로 0->2 경로 풀기 결과:")
-    path = []
-    if start_arc:
-        cch.unpack_path(start_arc, path)
-        
-        if path:
-            total_cost = 0
-            for arc in path:
-                print(f"{arc.source.id} -> {arc.target.id} (비용: {arc.cost})")
-                total_cost += arc.cost
-            print(f"\n총 비용: {total_cost}")
-    
-    return graph
-
-
-
-    # 메인 함수
+# 메인 함수 실행 코드
 if __name__ == "__main__":
-    # print("\n기본 CCH 알고리즘 예제 실행\n")
-    # simple_cch_example()
-
-"""
+    pass  # 현재는 사용하지 않음
